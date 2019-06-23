@@ -1,8 +1,16 @@
-print ("Hello world")
-while (pi == m)
-while (a != b)
-if(c <= d) 
-	a = 3 - 1
-f = b + c
-func(a, b)
-mas[n]
+#комментарий
+print("Hello world")
+print(n)
+print("Hello world", n)
+print("Hello world", "n")
+n = 12 
+i = input()
+print(i)
+a = a + v
+if a == b:
+	a = a + 1
+while a < b:
+	a = a + 1
+def func(a, b):
+	c = a + b
+a = a + v

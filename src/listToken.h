@@ -22,6 +22,7 @@ class listToken{
 		void additem(string n, string t, int x, int y);
 		void add(string n, string t, int x, int y);
 		void display(char **argv);
+		linkToken* token();		
 		~listToken();
 };
 

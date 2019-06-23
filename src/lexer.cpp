@@ -14,10 +14,8 @@ void lexer::scan(char **argv){
 	f.open(argv[1], ios::in);
 	while(!f.eof()){
 		getline(f, str);
-		if(str != ""){
 			code.add(str);
 			size += 1;
-		}
 	}
 }
 void lexer::identification_token(){	
@@ -36,7 +34,7 @@ void lexer::identification_token(){
 					lexema = lexema + str[j2];
 					if(str[j2+1] == 34){
 						lexema = lexema + str[j2+1];
-						type = "string_iteral";
+						type = "literal";
 						token.add(lexema, type, x, y);							
 						j = j2+2;
 						lexema = "";
@@ -46,6 +44,9 @@ void lexer::identification_token(){
 			}
 			if(str[j] == 32){
 				continue;
+			}
+		 	if(str[j] == 35){
+				break;
 			}
 			if(str[j] == 61 && str[j+1] == 61){
 				lexema = str[j];
@@ -60,7 +61,7 @@ void lexer::identification_token(){
 			if(str[j] == 33 && str[j+1] == 61){
 				lexema = str[j];
 				lexema = lexema + str[j+1];
-				type = "compare";
+				type = "no_compare";
 				x = j + 1;
 				token.add(lexema, type, x, y);
 				lexema = "";
@@ -159,6 +160,14 @@ void lexer::identification_token(){
 				lexema = "";
 				continue;
 			}
+			if(str[j] == 58){
+				lexema = str[j];
+				type = "colon";
+				x = j + 1;
+				token.add(lexema, type, x, y);
+				lexema = "";
+				continue;
+			}
 			if(str[j] == 61){
 				lexema = str[j];
 				type = "equally";
@@ -209,10 +218,45 @@ void lexer::identification_token(){
 			}
 			
 			lexema = lexema + str[j];
-			if((str[j+1] > 31 && str[j+1] < 35) || (str[j+1] > 59 && str[j+1] < 63) || ( str[j+1] > 39 && str[j+1] < 48)|| str[j+1] == 37 || str[j+1] == 91 || str[j+1] 			== 93 || j == (n-1)){ 
-				if(lexema == "print" || lexema == "while" || lexema == "if" || lexema == "else" || lexema == "input"){
+			if((str[j+1] > 31 && str[j+1] < 36) || (str[j+1] > 59 && str[j+1] < 63) || ( str[j+1] > 39 && str[j+1] < 48)|| str[j+1] == 37 || str[j+1] == 58 || str[j+1] 			== 91 || str[j+1] == 93 || j == (n-1)){ 
+				if(lexema == "print"){
 					x = j - lexema.length() + 2;
-					type = "identifier";
+					type = "print";
+					token.add(lexema, type, x, y);
+					lexema = "";
+					continue;
+				}
+				if(lexema == "while"){
+					x = j - lexema.length() + 2;
+					type = "while";
+					token.add(lexema, type, x, y);
+					lexema = "";
+					continue;
+				}
+				if(lexema == "if"){
+					x = j - lexema.length() + 2;
+					type = "if";
+					token.add(lexema, type, x, y);
+					lexema = "";
+					continue;
+				}
+				if(lexema == "else"){
+					x = j - lexema.length() + 2;
+					type = "else";
+					token.add(lexema, type, x, y);
+					lexema = "";
+					continue;
+				}
+				if(lexema == "input"){
+					x = j - lexema.length() + 2;
+					type = "input";
+					token.add(lexema, type, x, y);
+					lexema = "";
+					continue;
+				}
+				if(lexema == "def"){
+					x = j - lexema.length() + 2;
+					type = "def";
 					token.add(lexema, type, x, y);
 					lexema = "";
 					continue;
@@ -272,11 +316,13 @@ void lexer::identification_token(){
 		}
 	}
 	x = str.length() + 1;
-	token.add("", "eof", x , size);
+	token.add("", "eof", x , (size));
 }
 
-void lexer::lex(char **argv){
+linkToken* lexer::lex(char **argv){
 	scan(argv);
 	identification_token();
 	token.display(argv);
+	linkToken *new_token = token.token();
+	return new_token;
 }

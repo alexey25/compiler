@@ -1,2 +1,2 @@
 all:
-	g++ -Wall *.cpp -o main
+	g++ -Wall src/*.cpp -o main

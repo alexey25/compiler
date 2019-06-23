@@ -38,6 +38,11 @@ void listToken::add(string n, string t, int x, int y){
 	}
 }
 
+linkToken* listToken::token(){
+	linkToken *current = first;			
+	return current;
+}
+	
 void listToken::display(char **argv){
 	linkToken *current = first;
 	while(current){

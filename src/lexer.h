@@ -15,7 +15,7 @@ class lexer{
 	public:
 		void scan(char **argv);
 		void identification_token();
-		void lex(char **argv);
+		linkToken* lex(char **argv);
 };
 
 
