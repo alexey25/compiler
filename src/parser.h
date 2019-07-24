@@ -20,10 +20,8 @@ class parser{
 		AST* pars(linkToken* Token);
 		void start();
 		void StList(AST* StartNode);
-		void print1(AST *node);
-		void print2(AST *node);
-		void print3(AST *node);
-		void print4(AST *node);
+		void print(AST *node);
+		void printarg(AST *node);
 		void commaid(AST* node);
 		void headcommaid(AST* node);
 		void tailcommaid(AST* node);

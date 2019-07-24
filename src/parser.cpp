@@ -25,7 +25,7 @@ void parser::StList(AST* StartNode){
 		setStroka(printNode, "print");
 		add_child(printNode, StartNode);
 		
-		print1(printNode);
+		print(printNode);
 		StList(StartNode);
 	}else if (lookahead->type =="id"){
 		id1(StartNode);
@@ -41,21 +41,13 @@ void parser::StList(AST* StartNode){
 		StList(StartNode);
 	}
 }
-void parser::print1(AST *node) {
+void parser::print(AST *node) {
 	match("print");
-	print2(node);
+	match("l_paren");
+	printarg(node);
+	match("r_paren");
 }
-void parser::print2(AST *node){
-	if (lookahead->type == "l_paren"){
-		match("l_paren");
-		print3(node);
-	}else{
-		printErrorMessage(lookahead->y,lookahead->x, "l_paren");
-		exit(1);
-	}
-
-}
-void parser::print3(struct AST *node) {
+void parser::printarg(struct AST *node) {
 	if (lookahead->type == "id"){
 		commaid(node);
 	} else if (lookahead->type == "literal"){
@@ -64,19 +56,7 @@ void parser::print3(struct AST *node) {
 		printErrorMessage(lookahead->y,lookahead->x, "id or literal");
 		exit(1);
 	}  
-	print4(node);
 }
-
-void parser::print4(AST *node){
-	if (lookahead->type == "r_paren"){
-		match("r_paren");
-	}else{
-		printErrorMessage(lookahead->y,lookahead->x, "r_paren");
-		exit(1);
-	}
-
-}
-
 void parser::commaid(AST* node){
 	headcommaid(node);
 	tailcommaid(node);
@@ -112,8 +92,7 @@ void parser::tailcommaid(AST* node) {
 			add_child(idNode, node);
 			match("id");
 			tailcommaid(node);
-		}
-		if (lookahead->type == "literal"){
+		}else if (lookahead->type == "literal"){
 			AST* literalNode = initASTNode();
 			setStroka(literalNode, "literal");
 			setToken(literalNode, getLookahead());
@@ -121,6 +100,9 @@ void parser::tailcommaid(AST* node) {
 			add_child(literalNode, node);
 			match("literal");
 			tailcommaid(node);
+		}else{
+			printErrorMessage(lookahead->y,lookahead->x, "id or literal");
+			exit(1);		
 		}
 	}
 }
@@ -472,7 +454,7 @@ void parser::execution(AST *node){
 		setStroka(printNode, "print");
 		add_child(printNode, node);
 		
-		print1(printNode);
+		print(printNode);
 	}else if (lookahead->type =="id"){
 		id1(node);
 	} else if (lookahead->type == "if"){
