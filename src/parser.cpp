@@ -108,7 +108,7 @@ void parser::tailcommaid(AST* node) {
 }
 void parser::id1(AST *node) {
 	AST* idNode = initASTNode();
-	setStroka(idNode, "var");
+	setStroka(idNode, "id");
 	setToken(idNode, getLookahead());
 	add_child(idNode, node);
 	match("id");
@@ -123,14 +123,15 @@ void parser::id2(AST *node) {
 	
 	add_child(equallyNode, node);
 	match("equally");
-	id3(node);
-	}else{
-		printErrorMessage(lookahead->y,lookahead->x, "equally");
-		exit(1);
-	}	
+	idequally(node);
+	}else if(lookahead->type ==  "l_paren"){
+		idfunc(node);
+	}/*else if(lookahead->type ==  "l_braket"){
+		idmas(node);
+	}*/
 }
 
-void parser::id3(AST *node) {
+void parser::idequally(AST *node) {
 	if(lookahead->type ==  "input"){
 		AST* InputNode = initASTNode();
 		setStroka(InputNode, "input");
@@ -194,7 +195,7 @@ void parser::tailarithmetic(AST* node) {
 		}
 	}else if (lookahead->type == "plus"){
 		AST* plusNode = initASTNode();
-		setStroka(plusNode, "minus");
+		setStroka(plusNode, "plus");
 		setToken(plusNode, getLookahead());
 		add_child(plusNode, node);
 		match("plus");
@@ -330,8 +331,77 @@ void parser::tailarithmetic(AST* node) {
 			match("numeric_constant");
 			tailarithmetic(node);
 		}
+	}		
+}
+void parser::idfunc(AST *node){
+	match("l_paren");
+	arg(node);
+	match("r_paren");
+
+}
+
+void parser::arg(AST *node){
+	if (lookahead->type == "id"){
+		comma_arg(node);
+	} else if (lookahead->type == "numeric_constant"){
+		comma_arg(node);
+	} 
+}
+
+void parser::comma_arg(AST* node){
+	headcomma_arg(node);
+	tailcomma_arg(node);
+}
+
+void parser::headcomma_arg(AST* node){
+	if (lookahead->type == "id"){
+		AST* idNode = initASTNode();
+		setStroka(idNode, "var");
+		setToken(idNode, getLookahead());
+	
+		add_child(idNode, node);
+		match("id");
+	}
+	if (lookahead->type == "numeric_constant"){
+		AST* numeric_constantNode = initASTNode();
+		setStroka(numeric_constantNode, "numeric_constant");
+		setToken(numeric_constantNode, getLookahead());
+
+		add_child(numeric_constantNode, node);
+		match("numeric_constant");
 	}
 }
+
+void parser::tailcomma_arg(AST* node) {
+	if (lookahead->type == "comma"){
+		match("comma");
+		if (lookahead->type == "id"){
+			AST* idNode = initASTNode();
+			setStroka(idNode, "var");
+			setToken(idNode, getLookahead());
+	
+			add_child(idNode, node);
+			match("id");
+			tailcomma_arg(node);
+		}else if (lookahead->type == "numeric_constant"){
+			AST* numeric_constantNode = initASTNode();
+			setStroka(numeric_constantNode, "numeric_constant");
+			setToken(numeric_constantNode, getLookahead());
+
+			add_child(numeric_constantNode, node);
+			match("numeric_constant");
+			tailcomma_arg(node);
+		}else{
+			printErrorMessage(lookahead->y,lookahead->x, "id or numeric_constant");
+			exit(1);		
+		}
+	}
+}
+
+/*void parser::idmas(AST *node){
+
+}*/
+
 void parser::if1(AST *node){
 	AST* ifNode = initASTNode();
 	setStroka(ifNode, "if");

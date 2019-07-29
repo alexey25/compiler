@@ -3,4 +3,5 @@ print("Hello world")
 print(n)
 print("Hello world", n)
 print("Hello world", "n")
-
+a = d 
+func(a, 1)

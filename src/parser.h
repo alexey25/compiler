@@ -31,7 +31,13 @@ class parser{
 		void input4(AST* node);
 		void id1(AST* node);
 		void id2(AST* node);
-		void id3(AST* node);
+		void idequally(AST* node);
+		void idfunc(AST* node);
+		void arg(AST* node);
+		void comma_arg(AST* node);
+		void headcomma_arg(AST* node);
+		void tailcomma_arg(AST* node);
+		//void idmas(AST* node);
 		void arithmetic(AST* node);
 		void headarithmetic(AST* node);
 		void tailarithmetic(AST* node);
