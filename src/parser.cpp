@@ -412,7 +412,7 @@ void parser::if1(AST *node){
 	usl(node);
 	match("colon");
 	block(node);
-	while(lookahead->type !=  "else"){
+	while(lookahead->type ==  "else"){
 		match("else");
 		match("colon");
 		block(node);
@@ -449,6 +449,8 @@ void parser::while1(AST *node){
 	add_child(whileNode, node);
 	match("while");
 	usl(node);
+	match("colon");
+	block(node);
 }
 void parser::usl(AST *node) {
 	if(lookahead->type ==  "id"){
@@ -602,8 +604,8 @@ void parser::func(AST* StartNode) {
 
 	commaid(argListNode);
 	match("r_paren");
-
-	colon(StartNode);
+	match("colon");
+	
 }
 
 void parser::consume(){

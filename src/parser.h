@@ -44,13 +44,11 @@ class parser{
 		void tailarithmetic(AST* node);
 		void if1(AST* node);
 		void block(AST* node);
-		void indent(AST* node);
-		void dedent(AST* node);
-		void nl(AST* node);
+		void indent();
+		void dedent();
+		void nl();
 		void while1(AST* node);
 		void execution(AST* node);
-		void colon(AST* node);
-		void tab(AST* node);
 		void usl(AST* node);
 		void logic(AST* node);
 		void logic1(AST* node);
