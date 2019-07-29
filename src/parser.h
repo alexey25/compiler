@@ -15,6 +15,7 @@ class parser{
 		linkToken* Token;
 		linkToken* lookahead;
 		int count;
+		int tab;
 		struct AST *root;
 	public:
 		AST* pars(linkToken* Token);
@@ -42,6 +43,10 @@ class parser{
 		void headarithmetic(AST* node);
 		void tailarithmetic(AST* node);
 		void if1(AST* node);
+		void block(AST* node);
+		void indent(AST* node);
+		void dedent(AST* node);
+		void nl(AST* node);
 		void while1(AST* node);
 		void execution(AST* node);
 		void colon(AST* node);

@@ -3,6 +3,7 @@
 AST* parser::pars(linkToken* Token){
 	Token = Token;
 	count = 0;
+	tab = 0;
 	lookahead = Token;
 	root = NULL;
 	start();
@@ -409,7 +410,38 @@ void parser::if1(AST *node){
 	add_child(ifNode, node);
 	match("if");
 	usl(node);
+	match("colon");
+	block(node);
+	while(lookahead->type !=  "else"){
+		match("else");
+		match("colon");
+		block(node);
+	}
 }
+
+void parser::block(AST *node){
+	indent();
+	nl();
+	execution(node);
+	dedent();
+}
+
+void parser::indent(){
+	tab++;
+}
+
+void parser::dedent(){
+	tab--;
+}
+
+void parser::nl(){
+	int n = tab;
+	while(n != 0){
+		match("tab");
+		n--;
+	}
+}
+
 void parser::while1(AST *node){
 	AST* whileNode = initASTNode();
 	setStroka(whileNode, "while");
@@ -427,7 +459,6 @@ void parser::usl(AST *node) {
 		printErrorMessage(lookahead->y,lookahead->x, "id or numeric_constant");
 		exit(1);
 	}	
-	colon(node);
 }
 void parser::logic(AST* node){
 	logic1(node);
@@ -498,26 +529,7 @@ void parser::logic2(AST* node) {
 		exit(1);
 	}
 }
-void parser::colon(AST *node){
-	if (lookahead->type == "colon"){
-		match("colon");
-		tab(node);
-	}else{
-		printErrorMessage(lookahead->y,lookahead->x, "colon");
-		exit(1);
-	}
 
-}
-void parser::tab(AST *node){
-	if (lookahead->type == "tab"){
-		match("tab");
-		execution(node);
-	}else{
-		printErrorMessage(lookahead->y,lookahead->x, "tab");
-		exit(1);
-	}
-
-}
 void parser::execution(AST *node){
 	if (lookahead->type == "print") {
 		AST* printNode = initASTNode();
