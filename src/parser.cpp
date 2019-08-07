@@ -414,16 +414,20 @@ void parser::if1(AST *node){
 	block(node);
 	while(lookahead->type ==  "else"){
 		match("else");
-		match("colon");
-		block(node);
+		if(lookahead->type ==  "colon"){
+			match("colon");
+			block(node);
+		}else{
+			usl(node);
+			match("colon");
+			block(node);
+		}
 	}
 }
 
 void parser::block(AST *node){
 	indent();
-	nl();
-	execution(node);
-	dedent();
+	nl(node);
 }
 
 void parser::indent(){
@@ -434,11 +438,28 @@ void parser::dedent(){
 	tab--;
 }
 
-void parser::nl(){
-	int n = tab;
-	while(n != 0){
-		match("tab");
-		n--;
+void parser::nl(AST *node){
+	int i = 0;
+	while(true){
+		if(lookahead->type ==  "tab"){
+			if(tab < i){			
+				printErrorMessage(lookahead->y,lookahead->x, "no tab");
+			}else {
+				match("tab");
+				i++;
+			}
+		}else{
+			if((tab - 1) == i){
+				dedent();
+				break;
+			}else if(tab == i){
+				execution(node);
+				nl(node);
+				break;
+			}else{
+				match("tab");
+			}
+		}
 	}
 }
 

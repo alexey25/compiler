@@ -4,11 +4,19 @@ print(n)
 print("Hello world", n)
 print("Hello world", "n")
 a = d 
+sd = as;
 func(a, 1)
-if a < v :
-	df = fg;
+if ads == s:
+	if a < v :
+		df = fg
+		qw()
+		df = fg
+		qw()
 if a == a:
 	while a != a:
 		a++
-else:
+else a != a:
 	dd--
+else:
+	d = d + 1
+

@@ -46,7 +46,7 @@ class parser{
 		void block(AST* node);
 		void indent();
 		void dedent();
-		void nl();
+		void nl(AST *node);
 		void while1(AST* node);
 		void execution(AST* node);
 		void usl(AST* node);
