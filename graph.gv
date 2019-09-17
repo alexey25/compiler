@@ -1,0 +1,59 @@
+digraph {
+	"node1"[label=start]
+	"node1" -> "node2"
+	"node2"[label=print]
+	"node2" -> "node3"
+	"node3"[label=literal]
+	"node1" -> "node4"
+	"node4"[label=if]
+	"node4" -> "node5"
+	"node5"[label=Expresion]
+	"node5" -> "node7"
+	"node7"[label=less_or_equal]
+	"node7" -> "node6"
+	"node6"[label=var]
+	"node7" -> "node8"
+	"node8"[label=var]
+	"node4" -> "node9"
+	"node9"[label=StatementList]
+	"node9" -> "node10"
+	"node10"[label=print]
+	"node10" -> "node11"
+	"node11"[label=var]
+	"node4" -> "node12"
+	"node12"[label=Expresion]
+	"node12" -> "node14"
+	"node14"[label=more]
+	"node14" -> "node13"
+	"node13"[label=var]
+	"node14" -> "node15"
+	"node15"[label=var]
+	"node4" -> "node16"
+	"node16"[label=StatementList]
+	"node16" -> "node17"
+	"node17"[label=print]
+	"node17" -> "node18"
+	"node18"[label=var]
+	"node1" -> "node19"
+	"node19"[label=while]
+	"node19" -> "node20"
+	"node20"[label=Expresion]
+	"node20" -> "node22"
+	"node22"[label=less]
+	"node22" -> "node21"
+	"node21"[label=var]
+	"node22" -> "node23"
+	"node23"[label=var]
+	"node19" -> "node24"
+	"node24"[label=StatementList]
+	"node24" -> "node25"
+	"node25"[label=print]
+	"node25" -> "node26"
+	"node26"[label=var]
+	"node24" -> "node27"
+	"node27"[label=var]
+	"node24" -> "node28"
+	"node28"[label=equally]
+	"node24" -> "node29"
+	"node29"[label=var]
+}

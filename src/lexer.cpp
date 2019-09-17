@@ -104,6 +104,30 @@ void lexer::identification_token(){
 				lexema = "";
 				continue;
 			}
+			if(str[j] == 38){
+				lexema = str[j];
+				type = "and";
+				x = j + 1;
+				token.add(lexema, type, x, y);
+				lexema = "";
+				continue;
+			}
+			if(str[j] == 124){
+				lexema = str[j];
+				type = "or";
+				x = j + 1;
+				token.add(lexema, type, x, y);
+				lexema = "";
+				continue;
+			}
+			if(str[j] == 59){
+				lexema = str[j];
+				type = "semicolon";
+				x = j + 1;
+				token.add(lexema, type, x, y);
+				lexema = "";
+				continue;
+			}
 			if(str[j] == 42){
 				lexema = str[j];
 				type = "multiply";
@@ -192,12 +216,15 @@ void lexer::identification_token(){
 				lexema = "";
 				continue;
 			}
-			if(str[j] == 9){
+			/*if(str[j] == 9){
 				lexema = str[j];
 				type = "tab";
 				x = j + 1;
 				token.add(lexema, type, x, y);
 				lexema = "";
+				continue;
+			}*/
+			if(str[j] == 9){
 				continue;
 			}
 			if(str[j] == 91){
@@ -210,7 +237,23 @@ void lexer::identification_token(){
 			}
 			if(str[j] == 93){
 				lexema = str[j];
-				type = "p_braket";
+				type = "r_braket";
+				x = j + 1;
+				token.add(lexema, type, x, y);
+				lexema = "";
+				continue;
+			}
+			if(str[j] == 123){
+				lexema = str[j];
+				type = "l_brace";
+				x = j + 1;
+				token.add(lexema, type, x, y);
+				lexema = "";
+				continue;
+			}
+			if(str[j] == 125){
+				lexema = str[j];
+				type = "r_brace";
 				x = j + 1;
 				token.add(lexema, type, x, y);
 				lexema = "";
@@ -218,7 +261,7 @@ void lexer::identification_token(){
 			}
 			
 			lexema = lexema + str[j];
-			if((str[j+1] > 31 && str[j+1] < 36) || (str[j+1] > 59 && str[j+1] < 63) || ( str[j+1] > 39 && str[j+1] < 48)|| str[j+1] == 37 || str[j+1] == 58 || str[j+1] 			== 91 || str[j+1] == 93 || j == (n-1)){ 
+			if((str[j+1] > 31 && str[j+1] < 36) || (str[j+1] > 59 && str[j+1] < 63) || ( str[j+1] > 39 && str[j+1] < 48)|| str[j+1] == 37 || str[j+1] == 59 || str[j+1] 				== 58 || str[j+1] == 91 || str[j+1] == 93 || str[j+1] == 123 || str[j+1] == 125 ||  j == (n-1)){ 
 				if(lexema == "print"){
 					x = j - lexema.length() + 2;
 					type = "print";
@@ -243,6 +286,13 @@ void lexer::identification_token(){
 				if(lexema == "else"){
 					x = j - lexema.length() + 2;
 					type = "else";
+					token.add(lexema, type, x, y);
+					lexema = "";
+					continue;
+				}
+				if(lexema == "elif"){
+					x = j - lexema.length() + 2;
+					type = "elif";
 					token.add(lexema, type, x, y);
 					lexema = "";
 					continue;
@@ -307,7 +357,7 @@ void lexer::identification_token(){
 				}
 				if(tmp){
 					x = j - lexema.length() + 2;
-					type = "numeric_constant";
+					type = "numeric";
 					token.add(lexema, type, x, y);
 					lexema = "";
 					continue;

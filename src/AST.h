@@ -33,5 +33,10 @@ void deleteLastChild(struct AST *node);
 void addNewChild(struct AST *parent, struct AST *newChild);
 void swapChild(struct AST *parent, struct AST *newChild);
 
+void createTree(struct AST* Node);
+void createConnect(FILE *graph, struct AST* Node);
+void createBox(FILE *graph, struct AST* Node);
+void toGvNode(FILE *graph, struct AST* Node);
+
 
 #endif

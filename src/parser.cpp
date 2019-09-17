@@ -21,25 +21,48 @@ void parser::start(){
 }
 
 void parser::StList(AST* StartNode){
+	 if (lookahead->type == "print"|| 
+        lookahead->type == "if"||
+        lookahead->type == "while"||
+        lookahead->type == "id"||
+        lookahead->type == "return")
+    {
+        Anuthing(StartNode);
+        StList(StartNode);
+    }else
+        if (lookahead->type == "comma" ||
+		lookahead->type == "less_or_equal" || 
+        lookahead->type == "more_or_equal" || 
+        lookahead->type == "not_equal"||
+        lookahead->type == "less" ||
+        lookahead->type == "more" ||
+        lookahead->type == "l_paren" ||
+        lookahead->type == "r_paren" ||
+        lookahead->type == "l_braket" ||
+        lookahead->type == "r_braket" ||
+        lookahead->type == "equally" ||
+        lookahead->type == "semicolon")
+    {
+		printErrorMessage(lookahead->y,lookahead->x, "Stetement list");
+        exit(1);
+    }
+
+}
+void parser::Anuthing(AST* StartNode){
 	if (lookahead->type == "print") {
 		AST* printNode = initASTNode();
 		setStroka(printNode, "print");
 		add_child(printNode, StartNode);
 		
 		print(printNode);
-		StList(StartNode);
 	}else if (lookahead->type =="id"){
 		id1(StartNode);
-		StList(StartNode);
 	} else if (lookahead->type == "if"){
-		if1(StartNode);
-		StList(StartNode);
+		If(StartNode);
 	} else if (lookahead->type == "while"){
-		while1(StartNode);
-		StList(StartNode);
+		While(StartNode);
 	} else if (lookahead->type == "def"){
 		func(StartNode);
-		StList(StartNode);
 	}
 }
 void parser::print(AST *node) {
@@ -107,9 +130,250 @@ void parser::tailcommaid(AST* node) {
 		}
 	}
 }
+void parser::If(struct AST* StetementNode)
+{
+    struct AST* IfNode = initASTNode();
+    setStroka(IfNode, "if");
+    add_child(IfNode, StetementNode);
+
+    match("if");
+
+    Expr(IfNode);
+    
+    match("colon");
+    match("l_brace");
+
+    struct AST* StatNode = initASTNode();
+    setStroka(StatNode, "StatementList");
+    add_child(StatNode, IfNode);
+
+    StList(StatNode); 
+    match("r_brace");
+    Else(IfNode);
+}
+/*
+<else> -> else <else`> | E
+*/
+void parser::Else(struct AST* IfNode)
+{
+    if (lookahead->type == "else")
+    {
+        match("else");
+        Else_T(IfNode);
+    }
+	if (lookahead->type == "elif")
+    {
+        match("elif");
+        Elif_T(IfNode);
+    }
+}
+/*
+<else_t> -> { <statementList> } | <if> 
+*/
+void parser::Else_T(struct AST* IfNode)
+{
+    if (lookahead->type == "colon")
+    {
+        match("colon");
+		match("l_brace");
+
+        struct AST* StatNode = initASTNode();
+        setStroka(StatNode, "StatementList");
+        add_child(StatNode, IfNode);
+
+        StList(StatNode);
+
+	    match("r_brace");
+    	Else(IfNode);	
+    } 
+}
+void parser::Elif_T(struct AST* IfNode)
+{
+    Expr(IfNode);
+    
+    match("colon");
+    match("l_brace");
+
+    struct AST* StatNode = initASTNode();
+    setStroka(StatNode, "StatementList");
+    add_child(StatNode, IfNode);
+
+    StList(StatNode); 
+    match("r_brace");
+    Else(IfNode);
+}
+/*
+<while> -> while (<expr>) { <statementList> }
+*/
+void parser::While(struct AST* StetementNode)
+{
+    struct AST* WhileNode = initASTNode();
+    setStroka(WhileNode, "while");
+    add_child(WhileNode, StetementNode);
+    
+    match("while");
+
+    Expr(WhileNode);
+
+    match("colon");
+    match("l_brace");
+
+    struct AST* StatNode = initASTNode();
+    setStroka(StatNode, "StatementList");
+    add_child(StatNode, WhileNode);
+
+    StList(StatNode);
+
+    match("r_brace");
+}
+/*
+<expr> -> numeric | id <compar>
+*/
+void parser::Expr(struct AST* Node)
+{
+    struct AST* ExprNode = initASTNode();
+    setStroka(ExprNode, "Expresion");
+    add_child(ExprNode, Node);
+
+    if (lookahead->type == "numeric")
+    {
+        struct AST* NumericNode = initASTNode();
+        setStroka(NumericNode, "numeric");
+        setToken(NumericNode,  getLookahead());
+        add_child(NumericNode, ExprNode);
+
+        match("numeric");
+    }else if (lookahead->type == "id")
+    {
+        struct AST* IdNode = initASTNode();
+        setStroka(IdNode, "var");
+        setToken(IdNode,  getLookahead());
+        add_child(IdNode, ExprNode);
+        
+
+        match("id");
+        Compar(ExprNode);
+    }else{
+		printErrorMessage(lookahead->y,lookahead->x, "Expresion");
+        exit(1);
+    }
+}
+/*
+<copmar> -> <comparison> <id_or_num> | E
+*/
+void parser::Compar(struct AST* ExprNode){
+    if (lookahead->type =="less_or_equal" || 
+        lookahead->type =="no_compare" ||
+        lookahead->type =="less" ||
+        lookahead->type =="more" || 
+        lookahead->type =="more_or_equal")
+    {
+        struct AST* ComparNode = initASTNode();
+        setStroka(ComparNode, lookahead->type);
+        swapChild(ExprNode, ComparNode);
+        //add_child(ComparNode, ExprNode);
+
+        Comparison(ExprNode);
+       	Id_or_Num(ComparNode);
+    }
+}
+/*
+<comparison> -> == | != | < | <= | > | >=
+*/
+void parser::Comparison(struct AST* ExprNode)
+{
+    //struct AST* ComparNode = Init_Node_AST();
+    if(lookahead->type =="less_or_equal")
+    {
+        match("less_or_equal");
+    } else if (lookahead->type =="no_compare")
+    {
+        match("no_compare");
+    } else if (lookahead->type =="less") 
+    {
+        match("less");
+    } else if (lookahead->type =="more")
+    {
+        match("more");
+    } else if (lookahead->type =="more_or_equal")
+    {
+        match("more_or_equal");
+    }else{
+		printErrorMessage(lookahead->y,lookahead->x, "comparison");
+    	exit(1);
+    }
+}
+/*
+<or_and> -> || | && 
+*/
+void parser::Or_And()
+{
+    if (lookahead->type == "or")
+    {
+        match("or");
+    }else if (lookahead->type == "and")
+    {
+        match("and");
+    }else{
+		printErrorMessage(lookahead->y,lookahead->x, "or_and");
+        exit(1);
+    }
+}
+
+void parser::Id_or_Num(struct AST* ComparNode)
+{
+    if (lookahead->type == "id")
+    {
+        struct AST* IdNode = initASTNode();
+        setStroka(IdNode, "var");
+        setToken(IdNode,  getLookahead());
+       	add_child(IdNode, ComparNode);
+
+
+        match("id");
+    } else if (lookahead->type == "minus" ||
+                lookahead->type == "plus" ||
+                lookahead->type == "numeric")
+    {
+        Neg_Sings(ComparNode);
+
+        if (lookahead->type != "numeric"){
+			printErrorMessage(lookahead->y,lookahead->x, "numeric");
+            exit(1);
+        }
+        struct AST* NumericNode = initASTNode();
+        setStroka(NumericNode, "numeric");
+        setToken(NumericNode, getLookahead());
+        //Set_Token(IdNode,  parser->knots);
+        add_child(NumericNode, ComparNode);
+
+        match("numeric");
+    }else
+    {
+        if (lookahead->type != "minus" ||
+            lookahead->type != "plus" ||
+            lookahead->type != "numeric" ||
+            lookahead->type != "id") 
+        {
+			printErrorMessage(lookahead->y,lookahead->x, "calc");		
+            exit(1);
+        }
+    }
+}
+
+void parser::Neg_Sings(AST* node)
+{
+    if (lookahead->type == "plus")
+    {
+        match("plus");
+    }else if (lookahead->type == "minus")
+    {
+        match("minus");
+    }
+}
 void parser::id1(AST *node) {
 	AST* idNode = initASTNode();
-	setStroka(idNode, "id");
+	setStroka(idNode, "var");
 	setToken(idNode, getLookahead());
 	add_child(idNode, node);
 	match("id");
@@ -403,175 +667,7 @@ void parser::tailcomma_arg(AST* node) {
 
 }*/
 
-void parser::if1(AST *node){
-	AST* ifNode = initASTNode();
-	setStroka(ifNode, "if");
-	setToken(ifNode, getLookahead());
-	add_child(ifNode, node);
-	match("if");
-	usl(node);
-	match("colon");
-	block(node);
-	while(lookahead->type ==  "else"){
-		match("else");
-		if(lookahead->type ==  "colon"){
-			match("colon");
-			block(node);
-		}else{
-			usl(node);
-			match("colon");
-			block(node);
-		}
-	}
-}
 
-void parser::block(AST *node){
-	indent();
-	nl(node);
-}
-
-void parser::indent(){
-	tab++;
-}
-
-void parser::dedent(){
-	tab--;
-}
-
-void parser::nl(AST *node){
-	int i = 0;
-	while(true){
-		if(lookahead->type ==  "tab"){
-			if(tab < i){			
-				printErrorMessage(lookahead->y,lookahead->x, "no tab");
-			}else {
-				match("tab");
-				i++;
-			}
-		}else{
-			if((tab - 1) == i){
-				dedent();
-				break;
-			}else if(tab == i){
-				execution(node);
-				nl(node);
-				break;
-			}else{
-				match("tab");
-			}
-		}
-	}
-}
-
-void parser::while1(AST *node){
-	AST* whileNode = initASTNode();
-	setStroka(whileNode, "while");
-	setToken(whileNode, getLookahead());
-	add_child(whileNode, node);
-	match("while");
-	usl(node);
-	match("colon");
-	block(node);
-}
-void parser::usl(AST *node) {
-	if(lookahead->type ==  "id"){
-		logic(node);
-	}else if(lookahead->type ==  "numeric_constant"){
-		logic(node);
-	}else{
-		printErrorMessage(lookahead->y,lookahead->x, "id or numeric_constant");
-		exit(1);
-	}	
-}
-void parser::logic(AST* node){
-	logic1(node);
-	logic2(node);
-	logic1(node);
-}
-
-void parser::logic1(AST* node){
-	if(lookahead->type ==  "id"){
-		AST* idNode = initASTNode();
-		setStroka(idNode, "var");
-		setToken(idNode, getLookahead());
-		add_child(idNode, node);
-		match("id");
-	
-	}else if(lookahead->type ==  "numeric_constant"){
-		AST* constNode = initASTNode();
-		setStroka(constNode, "const");
-		setToken(constNode, getLookahead());
-	
-		add_child(constNode, node);	
-		match("numeric_constant");
-	}else{
-		printErrorMessage(lookahead->y,lookahead->x, "id or numeric_constant");
-		exit(1);
-	}
-}
-
-void parser::logic2(AST* node) {
-	if (lookahead->type == "less"){
-		AST* lessNode = initASTNode();
-		setStroka(lessNode, "less");
-		setToken(lessNode, getLookahead());
-		add_child(lessNode, node);
-		match("less");
-	}else if (lookahead->type == "more"){
-		AST* moreNode = initASTNode();
-		setStroka(moreNode, "more");
-		setToken(moreNode, getLookahead());
-		add_child(moreNode, node);
-		match("more");
-	}else if (lookahead->type == "compare"){
-		AST* compareNode = initASTNode();
-		setStroka(compareNode, "compare");
-		setToken(compareNode, getLookahead());
-		add_child(compareNode, node);
-		match("compare");
-	}else if (lookahead->type == "more_or_equal"){
-		AST* more_or_equalNode = initASTNode();
-		setStroka(more_or_equalNode, "more_or_equal");
-		setToken(more_or_equalNode, getLookahead());
-		add_child(more_or_equalNode, node);
-		match("more_or_equal");
-	}else if (lookahead->type == "no_compare"){
-		AST* no_compareNode = initASTNode();
-		setStroka(no_compareNode, "no_compare");
-		setToken(no_compareNode, getLookahead());
-		add_child(no_compareNode, node);
-		match("no_compare");
-	}else if (lookahead->type == "less_or_equal"){
-		AST* less_or_equalNode = initASTNode();
-		setStroka(less_or_equalNode, "less_or_equal");
-		setToken(less_or_equalNode, getLookahead());
-		add_child(less_or_equalNode, node);
-		match("less_or_equal");
-	}else{
-		printErrorMessage(lookahead->y,lookahead->x, "logic");
-		exit(1);
-	}
-}
-
-void parser::execution(AST *node){
-	if (lookahead->type == "print") {
-		AST* printNode = initASTNode();
-		setStroka(printNode, "print");
-		add_child(printNode, node);
-		
-		print(printNode);
-	}else if (lookahead->type =="id"){
-		id1(node);
-	} else if (lookahead->type == "if"){
-		if1(node);
-	}else if (lookahead->type == "while"){
-		while1(node);
-	}else{
-		printErrorMessage(lookahead->y,lookahead->x, "usl");
-		exit(1);
-	}
-
-}
 void parser::input1(AST* node) {
 	match("input");
 	input2(node);

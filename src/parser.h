@@ -21,7 +21,20 @@ class parser{
 		AST* pars(linkToken* Token);
 		void start();
 		void StList(AST* StartNode);
+		void Anuthing(AST* StartNode);
 		void print(AST *node);
+		void Lit_or_id(struct AST* LiteralNode);
+		void If(struct AST* StetementNode);
+		void Else(struct AST* IfNode);
+		void Else_T(struct AST* IfNode);
+		void Elif_T(struct AST* IfNode);
+		void While(struct AST* StetementNode);
+		void Expr(struct AST* Node);
+		void Compar(struct AST* ExprNode);
+		void Comparison(struct AST* ExprNode);
+		void Or_And();
+		void Id_or_Num(struct AST* ComparNode);
+		void Neg_Sings(AST* node);
 		void printarg(AST *node);
 		void commaid(AST* node);
 		void headcommaid(AST* node);
@@ -42,17 +55,6 @@ class parser{
 		void arithmetic(AST* node);
 		void headarithmetic(AST* node);
 		void tailarithmetic(AST* node);
-		void if1(AST* node);
-		void block(AST* node);
-		void indent();
-		void dedent();
-		void nl(AST *node);
-		void while1(AST* node);
-		void execution(AST* node);
-		void usl(AST* node);
-		void logic(AST* node);
-		void logic1(AST* node);
-		void logic2(AST* node);
 		void func(AST* node);
 
 		linkToken* nextToken();
