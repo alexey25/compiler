@@ -3,9 +3,13 @@ if a <= n : {
 	print(n)
 }elif a > n : {
 	print(a)
+}else:{
+	print("error")
 }
 while a < n : {
  	print(a)
-	a = n
+	a = 1 + 1
 }
+
+sum(a, b)
 

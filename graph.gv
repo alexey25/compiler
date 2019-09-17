@@ -34,26 +34,48 @@ digraph {
 	"node17"[label=print]
 	"node17" -> "node18"
 	"node18"[label=var]
-	"node1" -> "node19"
-	"node19"[label=while]
+	"node4" -> "node19"
+	"node19"[label=StatementList]
 	"node19" -> "node20"
-	"node20"[label=Expresion]
-	"node20" -> "node22"
-	"node22"[label=less]
-	"node22" -> "node21"
-	"node21"[label=var]
+	"node20"[label=print]
+	"node20" -> "node21"
+	"node21"[label=literal]
+	"node1" -> "node22"
+	"node22"[label=while]
 	"node22" -> "node23"
-	"node23"[label=var]
-	"node19" -> "node24"
-	"node24"[label=StatementList]
-	"node24" -> "node25"
-	"node25"[label=print]
+	"node23"[label=Expresion]
+	"node23" -> "node25"
+	"node25"[label=less]
+	"node25" -> "node24"
+	"node24"[label=var]
 	"node25" -> "node26"
 	"node26"[label=var]
-	"node24" -> "node27"
-	"node27"[label=var]
-	"node24" -> "node28"
-	"node28"[label=equally]
-	"node24" -> "node29"
+	"node22" -> "node27"
+	"node27"[label=StatementList]
+	"node27" -> "node28"
+	"node28"[label=print]
+	"node28" -> "node29"
 	"node29"[label=var]
+	"node27" -> "node31"
+	"node31"[label=Arithmetic]
+	"node31" -> "node32"
+	"node32"[label=equally]
+	"node32" -> "node30"
+	"node30"[label=var]
+	"node32" -> "node34"
+	"node34"[label=plus]
+	"node34" -> "node33"
+	"node33"[label=numeric]
+	"node34" -> "node35"
+	"node35"[label=numeric]
+	"node1" -> "node37"
+	"node37"[label=Func_call]
+	"node37" -> "node36"
+	"node36"[label=Function]
+	"node37" -> "node38"
+	"node38"[label=Arg_List]
+	"node38" -> "node39"
+	"node39"[label=var]
+	"node38" -> "node40"
+	"node40"[label=var]
 }

@@ -56,7 +56,7 @@ void parser::Anuthing(AST* StartNode){
 		
 		print(printNode);
 	}else if (lookahead->type =="id"){
-		id1(StartNode);
+		Tat(StartNode);
 	} else if (lookahead->type == "if"){
 		If(StartNode);
 	} else if (lookahead->type == "while"){
@@ -371,301 +371,268 @@ void parser::Neg_Sings(AST* node)
         match("minus");
     }
 }
-void parser::id1(AST *node) {
-	AST* idNode = initASTNode();
-	setStroka(idNode, "var");
-	setToken(idNode, getLookahead());
-	add_child(idNode, node);
-	match("id");
-	id2(node);
+
+/*
+<equal> -> numeric | literal   
+*/
+void parser::Equal(struct AST* Node)
+{
+    if (lookahead->type ==  "numeric")
+    {
+        struct AST* NumericNode = initASTNode();
+        setStroka(NumericNode, "numeric");
+        setToken(NumericNode, getLookahead());
+        add_child(NumericNode, Node);
+
+        match("numeric");
+    }else if (lookahead->type == "literal")
+    {
+        struct AST* LiteralNode = initASTNode();
+        setStroka(LiteralNode, "Literal");
+        setToken(LiteralNode,  getLookahead());
+        add_child(LiteralNode, Node);
+
+       match("literal");
+    }else{
+		printErrorMessage(lookahead->y,lookahead->x, "numeric or literal");	
+        exit(1);
+    }
+}
+/*
+<tat> -> id <arith_or_func>
+*/
+void parser::Tat(struct AST* StetementNode)
+{
+
+    struct AST* IdNode = initASTNode();
+    add_child(IdNode, StetementNode);
+    match("id");
+    Arith_or_func(StetementNode);
+}
+/*
+<arith_or_func> -> <func_call> | <arithmetic>
+*/
+void parser::Arith_or_func(struct AST* StetementNode){
+    if (lookahead->type == "l_paren")
+    {
+        struct AST* getLastNode = getLastChilde(StetementNode);;    
+        setStroka(getLastNode, "Function");
+
+        struct AST* FuncCallNode = initASTNode();
+        setStroka(FuncCallNode, "Func_call");
+        swapChild(StetementNode, FuncCallNode);
+       //Add_Child(FuncCallNode, StetementNode);
+
+        Func_call(FuncCallNode);
+    }else if (lookahead->type ==  "equally")
+    {
+        struct AST* getLastNode = getLastChilde(StetementNode);;    
+        setStroka(getLastNode, "var");
+       // Set_Token(getLastNode, Get_knots);
+
+        struct AST* ArithmeticNode = initASTNode();
+        setStroka(ArithmeticNode, "Arithmetic");
+        swapChild(StetementNode, ArithmeticNode);
+
+        Arithmetic(ArithmeticNode);
+    }else{
+		printErrorMessage(lookahead->y,lookahead->x, "function");
+        exit(1);
+    }
+}
+/*
+<func_call> ->  (id , id);
+*/
+void parser::Func_call(struct AST* IdNode )
+{
+    match("l_paren");
+    if (lookahead->type !=  "id")
+    {
+		printErrorMessage(lookahead->y,lookahead->x, "id");
+        exit(1);
+    }
+    struct AST* ArgListNode = initASTNode();
+    setStroka(ArgListNode, "Arg_List");
+    add_child(ArgListNode, IdNode);
+    
+    struct AST* Id__Node = initASTNode();
+    setStroka(Id__Node, "var");
+    setToken(IdNode,  getLookahead());
+    add_child(Id__Node, ArgListNode);
+
+
+    match("id");
+    if (lookahead->type != "comma"){
+		printErrorMessage(lookahead->y,lookahead->x, "comma");
+        exit(1);
+    }
+    match("comma");
+
+    if (lookahead->type !="id"){
+		printErrorMessage(lookahead->y,lookahead->x, "id");
+        exit(1);
+    }
+
+    struct AST* Id_Node = initASTNode();
+    setStroka(Id_Node, "var");
+    setToken(IdNode, getLookahead());
+    add_child(Id_Node, ArgListNode);
+
+
+    match("id");
+    if (lookahead->type != "r_paren"){
+		printErrorMessage(lookahead->y,lookahead->x, "id");
+        exit(1);
+    }
+    match("r_paren");
+}
+/*
+<arithmetic> ->  = <oror>;
+*/
+void parser::Arithmetic(struct AST* ArithmeticNode)
+{
+    struct AST* ComparNode = initASTNode();
+    setStroka(ComparNode, getLookaheadname());
+    swapChild(ArithmeticNode, ComparNode);
+
+    match("equally");
+    Oror(ComparNode);
+}
+/*
+<oror> -> <vot> 
+*/
+void parser::Oror(struct AST* EquallyNode)
+{
+    Vot(EquallyNode);
+}
+/*
+<vot> -> <id_or_num> <top>
+*/
+void parser::Vot(struct AST* Node)
+{
+    Id_or_Num(Node);
+    Top(Node);
+}
+/*
+<top> -> <mult_or_add> <id_or_num> | E 
+*/
+void parser::Top(struct AST* EquallyNode)
+{
+    if (lookahead->type == "star" ||
+        lookahead->type == "division" ||
+        lookahead->type == "plus" || 
+        lookahead->type == "minus")
+    {
+        struct AST* ComparNode = initASTNode();
+        setStroka(ComparNode, getLookaheadname());
+        swapChild(EquallyNode, ComparNode);
+
+        Mult_or_Add(EquallyNode);
+        Id_or_Num(ComparNode);
+    }
 }
 
-void parser::id2(AST *node) {
-	if(lookahead->type ==  "equally"){
-	AST* equallyNode = initASTNode();
-	setStroka(equallyNode, "equally");
-	setToken(equallyNode, getLookahead());
-	
-	add_child(equallyNode, node);
-	match("equally");
-	idequally(node);
-	}else if(lookahead->type ==  "l_paren"){
-		idfunc(node);
-	}/*else if(lookahead->type ==  "l_braket"){
-		idmas(node);
-	}*/
+/*
+<mult_Oper> -> * | /
+*/
+void parser::Mult_Oper(struct AST* AnnouncementNode)
+{
+    if (lookahead->type == "star")
+    {
+        struct AST* StarNode = initASTNode();
+        setStroka(StarNode, "star");
+        add_child(StarNode, AnnouncementNode);
+
+        match("star");
+    }else if (lookahead->type == "division")
+    {
+        struct AST* DivisionNode = initASTNode();
+        setStroka(DivisionNode, "division");
+        add_child(DivisionNode, AnnouncementNode);
+
+        match("division");
+    }else{
+		printErrorMessage(lookahead->y,lookahead->x, "mult_oper");
+        exit(1);
+    }
+    
+}
+/*
+<add_Oper> -> + | -
+*/
+void parser::Add_Oper(struct AST* AnnouncementNode)
+{
+    if (lookahead->type == "plus")
+    {
+        match("plus");
+    }else if (lookahead->type == "minus")
+    {
+        match("minus");
+    }else{
+		printErrorMessage(lookahead->y,lookahead->x, "plus or minus");
+        exit(1);
+    }
+}
+/*
+<mult_or_add> -> <mult_Oper> | <add_Oper>
+*/
+void parser::Mult_or_Add(struct AST* AnnouncementNode)
+{
+    if (lookahead->type == "plus" ||
+        lookahead->type == "minus") 
+    {
+        Add_Oper(AnnouncementNode);
+    }else if (lookahead->type == "division" ||
+                lookahead->type == "star")
+    {
+        Mult_Oper(AnnouncementNode);
+    }else if (lookahead->type != "division" ||
+            lookahead->type != "star" ||
+            lookahead->type != "plus" ||
+            lookahead->type != "minus")
+        {
+			printErrorMessage(lookahead->y,lookahead->x, "plus or minus");
+            exit(1);
+        }
+}
+/*
+<return> -> return <return_Value>;
+*/
+void parser::Return(struct AST* StetementNode)
+{
+    struct AST* ReturnNode = initASTNode();
+    setStroka(ReturnNode, "Return");
+    add_child(ReturnNode, StetementNode);
+
+    match("return");
+    Return_Value(ReturnNode);
+}
+/*
+<return_Value> -> <neg_sings>numeric | E
+*/
+void parser::Return_Value(struct AST* ReturnNode)
+{
+    if (lookahead->type ==  "minus" ||
+                lookahead->type ==  "plus" ||
+                lookahead->type == "numeric")
+    {
+        Neg_Sings(ReturnNode);
+        if (lookahead->type == "numeric")
+        {
+			printErrorMessage(lookahead->y,lookahead->x, "numeric");
+            exit(1);
+        }
+        struct AST* NumericNode = initASTNode();
+        setStroka(NumericNode, "numeric");
+        add_child(NumericNode, ReturnNode);
+    
+        match("numeric");
+    }
 }
 
-void parser::idequally(AST *node) {
-	if(lookahead->type ==  "input"){
-		AST* InputNode = initASTNode();
-		setStroka(InputNode, "input");
-		add_child(InputNode, node);
-		input1(node);	
-	}else if(lookahead->type ==  "id"){
-		arithmetic(node);
-	}else if(lookahead->type ==  "numeric_constant"){
-		arithmetic(node);
-	}else{
-		printErrorMessage(lookahead->y,lookahead->x, "id or numeric_constant");
-		exit(1);
-	}	
-}
-void parser::arithmetic(AST* node){
-	headarithmetic(node);
-	tailarithmetic(node);
-}
 
-void parser::headarithmetic(AST* node){
-	if(lookahead->type ==  "id"){
-		AST* idNode = initASTNode();
-		setStroka(idNode, "var");
-		setToken(idNode, getLookahead());
-		add_child(idNode, node);
-		match("id");
-	
-	}else if(lookahead->type ==  "numeric_constant"){
-		AST* constNode = initASTNode();
-		setStroka(constNode, "const");
-		setToken(constNode, getLookahead());
-	
-		add_child(constNode, node);	
-		match("numeric_constant");
-	}
-}
 
-void parser::tailarithmetic(AST* node) {
-	if (lookahead->type == "minus"){
-		AST* minusNode = initASTNode();
-		setStroka(minusNode, "minus");
-		setToken(minusNode, getLookahead());
-		add_child(minusNode, node);
-		match("minus");
-		if(lookahead->type ==  "id"){
-			AST* idNode = initASTNode();
-			setStroka(idNode, "var");
-			setToken(idNode, getLookahead());
-			add_child(idNode, node);
-			match("id");
-			tailarithmetic(node);
-	
-		}else if(lookahead->type ==  "numeric_constant"){
-			AST* constNode = initASTNode();
-			setStroka(constNode, "const");
-			setToken(constNode, getLookahead());
-	
-			add_child(constNode, node);	
-			match("numeric_constant");
-			tailarithmetic(node);
-		}
-	}else if (lookahead->type == "plus"){
-		AST* plusNode = initASTNode();
-		setStroka(plusNode, "plus");
-		setToken(plusNode, getLookahead());
-		add_child(plusNode, node);
-		match("plus");
-		if(lookahead->type ==  "id"){
-			AST* idNode = initASTNode();
-			setStroka(idNode, "var");
-			setToken(idNode, getLookahead());
-			add_child(idNode, node);
-			match("id");
-			tailarithmetic(node);
-	
-		}else if(lookahead->type ==  "numeric_constant"){
-			AST* constNode = initASTNode();
-			setStroka(constNode, "const");
-			setToken(constNode, getLookahead());
-	
-			add_child(constNode, node);	
-			match("numeric_constant");
-			tailarithmetic(node);
-		}
-	}else if (lookahead->type == "multiply"){
-		AST* multiplyNode = initASTNode();
-		setStroka(multiplyNode, "multiply");
-		setToken(multiplyNode, getLookahead());
-		add_child(multiplyNode, node);
-		match("multiply");
-		if(lookahead->type ==  "id"){
-			AST* idNode = initASTNode();
-			setStroka(idNode, "var");
-			setToken(idNode, getLookahead());
-			add_child(idNode, node);
-			match("id");
-			tailarithmetic(node);
-	
-		}else if(lookahead->type ==  "numeric_constant"){
-			AST* constNode = initASTNode();
-			setStroka(constNode, "const");
-			setToken(constNode, getLookahead());
-	
-			add_child(constNode, node);	
-			match("numeric_constant");
-			tailarithmetic(node);
-		}
-	}else if (lookahead->type == "div"){
-		AST* divNode = initASTNode();
-		setStroka(divNode, "div");
-		setToken(divNode, getLookahead());
-		add_child(divNode, node);
-		match("div");
-		if(lookahead->type ==  "id"){
-			AST* idNode = initASTNode();
-			setStroka(idNode, "var");
-			setToken(idNode, getLookahead());
-			add_child(idNode, node);
-			match("id");
-			tailarithmetic(node);
-	
-		}else if(lookahead->type ==  "numeric_constant"){
-			AST* constNode = initASTNode();
-			setStroka(constNode, "const");
-			setToken(constNode, getLookahead());
-	
-			add_child(constNode, node);	
-			match("numeric_constant");
-			tailarithmetic(node);
-		}
-	}else if (lookahead->type == "mod"){
-		AST* modNode = initASTNode();
-		setStroka(modNode, "mod");
-		setToken(modNode, getLookahead());
-		add_child(modNode, node);
-		match("mod");
-		if(lookahead->type ==  "id"){
-			AST* idNode = initASTNode();
-			setStroka(idNode, "var");
-			setToken(idNode, getLookahead());
-			add_child(idNode, node);
-			match("id");
-			tailarithmetic(node);
-	
-		}else if(lookahead->type ==  "numeric_constant"){
-			AST* constNode = initASTNode();
-			setStroka(constNode, "const");
-			setToken(constNode, getLookahead());
-	
-			add_child(constNode, node);	
-			match("numeric_constant");
-			tailarithmetic(node);
-		}
-	}else if (lookahead->type == "l_paren"){
-		AST* l_parenNode = initASTNode();
-		setStroka(l_parenNode, "l_paren");
-		setToken(l_parenNode, getLookahead());
-		add_child(l_parenNode, node);
-		match("l_paren");
-		if(lookahead->type ==  "id"){
-			AST* idNode = initASTNode();
-			setStroka(idNode, "var");
-			setToken(idNode, getLookahead());
-			add_child(idNode, node);
-			match("id");
-			tailarithmetic(node);
-	
-		}else if(lookahead->type ==  "numeric_constant"){
-			AST* constNode = initASTNode();
-			setStroka(constNode, "const");
-			setToken(constNode, getLookahead());
-	
-			add_child(constNode, node);	
-			match("numeric_constant");
-			tailarithmetic(node);
-		}
-	}else if (lookahead->type == "r_paren"){
-		AST* r_parenNode = initASTNode();
-		setStroka(r_parenNode, "r_paren");
-		setToken(r_parenNode, getLookahead());
-		add_child(r_parenNode, node);
-		match("r_paren");
-		if(lookahead->type ==  "id"){
-			AST* idNode = initASTNode();
-			setStroka(idNode, "var");
-			setToken(idNode, getLookahead());
-			add_child(idNode, node);
-			match("id");
-			tailarithmetic(node);
-	
-		}else if(lookahead->type ==  "numeric_constant"){
-			AST* constNode = initASTNode();
-			setStroka(constNode, "const");
-			setToken(constNode, getLookahead());
-	
-			add_child(constNode, node);	
-			match("numeric_constant");
-			tailarithmetic(node);
-		}
-	}		
-}
-void parser::idfunc(AST *node){
-	match("l_paren");
-	arg(node);
-	match("r_paren");
 
-}
-
-void parser::arg(AST *node){
-	if (lookahead->type == "id"){
-		comma_arg(node);
-	} else if (lookahead->type == "numeric_constant"){
-		comma_arg(node);
-	} 
-}
-
-void parser::comma_arg(AST* node){
-	headcomma_arg(node);
-	tailcomma_arg(node);
-}
-
-void parser::headcomma_arg(AST* node){
-	if (lookahead->type == "id"){
-		AST* idNode = initASTNode();
-		setStroka(idNode, "var");
-		setToken(idNode, getLookahead());
-	
-		add_child(idNode, node);
-		match("id");
-	}
-	if (lookahead->type == "numeric_constant"){
-		AST* numeric_constantNode = initASTNode();
-		setStroka(numeric_constantNode, "numeric_constant");
-		setToken(numeric_constantNode, getLookahead());
-
-		add_child(numeric_constantNode, node);
-		match("numeric_constant");
-	}
-}
-
-void parser::tailcomma_arg(AST* node) {
-	if (lookahead->type == "comma"){
-		match("comma");
-		if (lookahead->type == "id"){
-			AST* idNode = initASTNode();
-			setStroka(idNode, "var");
-			setToken(idNode, getLookahead());
-	
-			add_child(idNode, node);
-			match("id");
-			tailcomma_arg(node);
-		}else if (lookahead->type == "numeric_constant"){
-			AST* numeric_constantNode = initASTNode();
-			setStroka(numeric_constantNode, "numeric_constant");
-			setToken(numeric_constantNode, getLookahead());
-
-			add_child(numeric_constantNode, node);
-			match("numeric_constant");
-			tailcomma_arg(node);
-		}else{
-			printErrorMessage(lookahead->y,lookahead->x, "id or numeric_constant");
-			exit(1);		
-		}
-	}
-}
-
-/*void parser::idmas(AST *node){
-
-}*/
 
 
 void parser::input1(AST* node) {
@@ -736,6 +703,9 @@ linkToken* parser::nextToken(){
 
 linkToken* parser::getLookahead(){
 	return lookahead;
+}
+string parser::getLookaheadname(){
+	return lookahead->type;
 }
 void parser::match(string x) {
 	if(lookahead->type == x){

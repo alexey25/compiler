@@ -33,7 +33,20 @@ class parser{
 		void Compar(struct AST* ExprNode);
 		void Comparison(struct AST* ExprNode);
 		void Or_And();
+		void Equal(struct AST* Node);
+		void Tat(struct AST* StetementNode);
+		void Arith_or_func(struct AST* StetementNode);
+		void Func_call(struct AST* IdNode );
+		void Arithmetic(struct AST* ArithmeticNode);
+		void Oror(struct AST* EquallyNode);
+		void Vot(struct AST* Node);
+		void Top(struct AST* EquallyNode);
+		void Mult_Oper(struct AST* AnnouncementNode);
+		void Add_Oper(struct AST* AnnouncementNode);
+		void Mult_or_Add(struct AST* AnnouncementNode);
 		void Id_or_Num(struct AST* ComparNode);
+		void Return(struct AST* StetementNode);
+		void Return_Value(struct AST* ReturnNode);
 		void Neg_Sings(AST* node);
 		void printarg(AST *node);
 		void commaid(AST* node);
@@ -59,6 +72,7 @@ class parser{
 
 		linkToken* nextToken();
 		linkToken* getLookahead();
+		string getLookaheadname();
 		void consume();
 		void printErrorMessage(int row, int column, string x);
 		void match(string x);
