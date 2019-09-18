@@ -25,6 +25,7 @@ void parser::StList(AST* StartNode){
         lookahead->type == "if"||
         lookahead->type == "while"||
         lookahead->type == "id"||
+        lookahead->type == "def"||
         lookahead->type == "return")
     {
         Anuthing(StartNode);
@@ -61,6 +62,8 @@ void parser::Anuthing(AST* StartNode){
 		If(StartNode);
 	} else if (lookahead->type == "while"){
 		While(StartNode);
+	} else if (lookahead->type == "return"){
+		Return(StartNode);
 	} else if (lookahead->type == "def"){
 		func(StartNode);
 	}
@@ -348,8 +351,9 @@ void parser::Id_or_Num(struct AST* ComparNode)
         add_child(NumericNode, ComparNode);
 
         match("numeric");
-    }else
-    {
+    }else if (lookahead->type ==  "input"){
+		input1(ComparNode);
+	}else{
         if (lookahead->type != "minus" ||
             lookahead->type != "plus" ||
             lookahead->type != "numeric" ||
@@ -413,8 +417,7 @@ void parser::Tat(struct AST* StetementNode)
 <arith_or_func> -> <func_call> | <arithmetic>
 */
 void parser::Arith_or_func(struct AST* StetementNode){
-    if (lookahead->type == "l_paren")
-    {
+    if (lookahead->type == "l_paren"){
         struct AST* getLastNode = getLastChilde(StetementNode);;    
         setStroka(getLastNode, "Function");
 
@@ -424,19 +427,47 @@ void parser::Arith_or_func(struct AST* StetementNode){
        //Add_Child(FuncCallNode, StetementNode);
 
         Func_call(FuncCallNode);
-    }else if (lookahead->type ==  "equally")
-    {
-        struct AST* getLastNode = getLastChilde(StetementNode);;    
-        setStroka(getLastNode, "var");
-       // Set_Token(getLastNode, Get_knots);
-
-        struct AST* ArithmeticNode = initASTNode();
-        setStroka(ArithmeticNode, "Arithmetic");
-        swapChild(StetementNode, ArithmeticNode);
-
-        Arithmetic(ArithmeticNode);
+    }else if (lookahead->type ==  "l_braket"){
+		struct AST* getLastNode = getLastChilde(StetementNode);;    
+	    setStroka(getLastNode, "Arithmetic");
+	    array(getLastNode);
+    }else if (lookahead->type ==  "equally"){
+		struct AST* getLastNode = getLastChilde(StetementNode);;    
+	    setStroka(getLastNode, "var");
+	   // Set_Token(getLastNode, Get_knots);
+	    struct AST* ArithmeticNode = initASTNode();
+	    setStroka(ArithmeticNode, "Arithmetic");
+	    swapChild(StetementNode, ArithmeticNode);
+	    Arithmetic(ArithmeticNode);
     }else{
-		printErrorMessage(lookahead->y,lookahead->x, "function");
+		printErrorMessage(lookahead->y,lookahead->x, "function or Arithmetic");
+        exit(1);
+    }
+}
+void parser::array(struct AST* Node){
+	match("l_braket");
+	if (lookahead->type ==  "id"){
+	    struct AST* IdNode = initASTNode();
+	    setStroka(IdNode, "Array");
+	    setToken(Node,  getLookahead());
+	    add_child(IdNode, Node);
+		match("id");
+		match("r_braket");  
+		if (lookahead->type ==  "equally"){
+			Arithmetic(Node);
+		}  
+	}else if (lookahead->type ==  "numeric"){
+		struct AST* IdNode = initASTNode();	    
+		setStroka(IdNode, "Array");
+	    setToken(Node,  getLookahead());
+	    add_child(IdNode, Node);
+		match("numeric");
+		match("r_braket");  
+		if (lookahead->type ==  "equally"){
+			Arithmetic(Node);
+		}     
+	}else{
+		printErrorMessage(lookahead->y,lookahead->x, "id or numeric");
         exit(1);
     }
 }
@@ -614,19 +645,26 @@ void parser::Return_Value(struct AST* ReturnNode)
 {
     if (lookahead->type ==  "minus" ||
                 lookahead->type ==  "plus" ||
+				lookahead->type ==  "id" ||
                 lookahead->type == "numeric")
     {
         Neg_Sings(ReturnNode);
         if (lookahead->type == "numeric")
         {
-			printErrorMessage(lookahead->y,lookahead->x, "numeric");
-            exit(1);
+		    struct AST* NumericNode = initASTNode();
+		    setStroka(NumericNode, "numeric");
+		    add_child(NumericNode, ReturnNode);
+			match("numeric");
         }
-        struct AST* NumericNode = initASTNode();
-        setStroka(NumericNode, "numeric");
-        add_child(NumericNode, ReturnNode);
+		if (lookahead->type == "id")
+        {
+		    struct AST* NumericNode = initASTNode();
+		    setStroka(NumericNode, "var");
+		    add_child(NumericNode, ReturnNode);
+			match("id");
+        }
     
-        match("numeric");
+    
     }
 }
 
@@ -636,6 +674,9 @@ void parser::Return_Value(struct AST* ReturnNode)
 
 
 void parser::input1(AST* node) {
+	AST* inputNode = initASTNode();
+	setStroka(inputNode, "input");
+	add_child(inputNode, node);
 	match("input");
 	input2(node);
 }
@@ -683,12 +724,21 @@ void parser::func(AST* StartNode) {
 	match("id");
 	match("l_paren");
 	struct AST *argListNode = initASTNode();
-	setStroka(argListNode, "argList");
+	setStroka(argListNode, "Arg_List");
 	add_child(argListNode, FuncNode);
 
 	commaid(argListNode);
 	match("r_paren");
 	match("colon");
+	match("l_brace");
+	
+	struct AST *bodyFuncNode = initASTNode();
+	setStroka(bodyFuncNode, "bodyFunc");
+	add_child(bodyFuncNode, FuncNode);
+
+	StList(bodyFuncNode);
+
+    match("r_brace");
 	
 }
 

@@ -297,6 +297,13 @@ void lexer::identification_token(){
 					lexema = "";
 					continue;
 				}
+				if(lexema == "return"){
+					x = j - lexema.length() + 2;
+					type = "return";
+					token.add(lexema, type, x, y);
+					lexema = "";
+					continue;
+				}
 				if(lexema == "input"){
 					x = j - lexema.length() + 2;
 					type = "input";

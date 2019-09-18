@@ -10,6 +10,11 @@ while a < n : {
  	print(a)
 	a = 1 + 1
 }
-
+array[0] = 2 + 2
+def sum(a, b):{
+	sum = a + b
+	return sum
+}
+a = input()
 sum(a, b)
 

@@ -47,6 +47,7 @@ class parser{
 		void Id_or_Num(struct AST* ComparNode);
 		void Return(struct AST* StetementNode);
 		void Return_Value(struct AST* ReturnNode);
+		void array(struct AST* Node);
 		void Neg_Sings(AST* node);
 		void printarg(AST *node);
 		void commaid(AST* node);
