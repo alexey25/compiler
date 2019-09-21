@@ -6,38 +6,45 @@
 #include <cstring>
 
 #define HASHTAB_SIZE 71
-#define HASHTAB_MUL 31
+#define HASHTAB_MUL  31
 
 using namespace std;
 
-struct listnode {
-    string key;  //название идентиф
-    int value;  //хэш-ключ
-    int size;
-    int offset;
-    int baseType; //1 - переменная, 2 - массив, 3 - функция
-    int type; //1 - инт, 2 - стринг
-    int countElem;  //для массивов
-    listnode *koll;  //для решения коллизий
-    listnode *next;
+struct listnode
+{
+    string key;//наименование id 
+    int value; //хэш-ключ
+    //enum Base_Type base_type;
+    int base_type;//1var 2arr 3func
+    //enum Type type;
+    int type;//1int 2char
+    int offset; //смещение в стеке
+    int size; 
+    int count_el; //кол-во эл-в. для массива
+    struct listnode *hashkoll; //для решения коллизий
+    struct listnode *next;  //переход к след узлу
 };
 
-struct idTable {
-    listnode *hashtab[HASHTAB_SIZE];
-    idTable *next;
+struct Id_Table
+{
+    struct listnode *hashtab[HASHTAB_SIZE];
+    struct Id_Table *next;
     int level;
     int sizeTable;
 };
 
 int hashtab_hash(string key);
-void hashtab_init(listnode **hashtab);
-void hashtab_add(listnode **hashtab, string key, int value, int baseType, int type);
-listnode *hashtab_lookup(listnode **hashtab, string key);
-void hashtab_delete(listnode **hashtab, string key);
-void hashtab_setOffset(listnode **hashtab, string key, int offset);
 
-idTable *idTable_init(int level);
-listnode *findInAllTable(idTable *table, string key);
-void addSizeTable(idTable *table);
+void hashtab_init(struct listnode **hashtab);
+void hashtab_add(struct listnode **hashtab, string key, int value, int base_type, int type);
+void hashtab_delete(struct listnode **hashtab, string key);
+void hashtab_setOffset(struct listnode **hashtab, string key, int offset);
+void addSizeTable(struct Id_Table *table, string key);
+
+struct listnode *hashtab_lookup(struct listnode **hashtab, string ey);
+struct Id_Table *Id_Table_Init (int level);
+struct listnode *Find_in_all_table(struct Id_Table *Table, string key);
+
+void Add_Size_Table(struct Id_Table *table);
 
 #endif

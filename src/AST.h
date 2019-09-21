@@ -17,7 +17,7 @@ struct AST {
     struct ListChild* ListChildren;
     int idNode;
     int type;
-	idTable* table;
+	struct Id_Table* table;
 };
 
 struct AST* initASTNode();

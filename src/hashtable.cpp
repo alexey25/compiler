@@ -14,18 +14,19 @@ void hashtab_init(listnode **hashtab) {
     }
 }
 
-idTable *idTable_init(int level) {
-    idTable *table = new idTable;
-    table->level = level;
-    table->next = NULL;
-    table->sizeTable = 0;
-    hashtab_init(table->hashtab);
-    return table;
+struct Id_Table *Id_Table_Init (int level)
+{
+    struct Id_Table *Table = (struct Id_Table*) calloc (1, sizeof (struct Id_Table));
+    Table->level = level;
+    Table->next = NULL;
+    Table->sizeTable = 0;
+    hashtab_init(Table->hashtab);
+    return Table;
 }
 
-void addSizeTable(idTable *table)
+void Add_Size_Table(struct Id_Table *table)
 {
-    table->sizeTable += 8;
+    table->sizeTable +=8;
 }
 
 void hashtab_add(listnode **hashtab, string key, int value, int baseType, int type) {
@@ -38,21 +39,21 @@ void hashtab_add(listnode **hashtab, string key, int value, int baseType, int ty
         node->value = value;
         node->size = 8;
         node->offset = 0;
-        node->baseType = baseType;
+        node->base_type = baseType;
         node->type = type;
         node->next = hashtab[index];
         hashtab[index] = node;
     }
 }
 
-listnode *findInAllTable(idTable *table, string key)
+struct listnode *Find_in_all_table(struct Id_Table *table, string key)
 {
     listnode **currHashTab = table->hashtab;
 
     listnode *node = hashtab_lookup(currHashTab, key);
 
     if (node == NULL && table->next != NULL) {
-        node = findInAllTable(table->next, key);
+        node = Find_in_all_table(table->next, key);
     }
 
     return node;

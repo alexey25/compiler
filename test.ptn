@@ -1,20 +1,8 @@
+#комментарий
 print("Hello world!")
-if a <= n : {
-	print(n)
-}elif a > n : {
-	print(a)
-}else:{
-	print("error")
-}
-while a < n : {
- 	print(a)
-	a = 1 + 1
-}
-array[0] = 2 + 2
-def sum(a, b):{
-	sum = a + b
-	return sum
-}
-a = input()
-sum(a, b)
+n1 = input()
+num2 = input()
+sum = n1 + num2
+sum = n1 + a
+
 

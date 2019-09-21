@@ -1,112 +1,99 @@
 #include "semantics.h"
 
-void init_semantic(struct AST *root) {
-	root->table = idTable_init(0);
-	travel_tree(root->table, root);
+void Init_semantic(struct AST *root){
+	root->table = Id_Table_Init(0);
+	Tree_traversal(root->table, root);
 }
-
-void travel_tree(struct idTable *table, struct AST *node) {
-	struct idTable* currTable = table;
-	if (node->Stroka == "id"){
-		struct ListChild* Children = node->ListChildren;
-		while (Children != NULL) {
-			string name = Children->Node->Token->type;
-
-			struct listnode *foundNode = hashtab_lookup(table->hashtab, name);
-
-			if (foundNode == NULL) {
+void Tree_traversal(struct Id_Table *table, struct AST *node)
+{
+	struct Id_Table* currTable = table;
+	if(node->Stroka == "var" || node->Stroka =="Array")
+	{
+		struct listnode *Found_Node = hashtab_lookup(currTable->hashtab, node->Token->name);
+		if(Found_Node == NULL)
+		{
+			if (node->type == 1 || node->type == 3)
+			{
+				string name = node->Token->name;
 				int value = hashtab_hash(name);
-	
-				int baseType;
-
-				if(Children->Node->Stroka == "var"){
-					baseType = 1;
-				} else if (Children->Node->Stroka == "arr"){
-					baseType = 2;
-				} 
-
-				int type;
-
-				if (Children->Node->type == 1) {
-					type = 1;
-				} else if (Children->Node->type == 2) {
-					type = 2;
+				int base_type;
+				if(node->Stroka == "var") 
+				{
+					base_type = 1;
+				}else if(node->Stroka == "Array")
+				{
+					base_type = 2;
 				}
-
-				hashtab_add(currTable->hashtab, name, value, baseType, type);
-				addSizeTable(currTable);
-				hashtab_setOffset(currTable->hashtab, name, table->sizeTable);
-			} else {
-				redeclMessage(Children->Node);
+				hashtab_add(currTable->hashtab, name, value, base_type, node->type);
+				Add_Size_Table(currTable);
+			    hashtab_setOffset(currTable->hashtab, name, currTable->sizeTable);
+			}else{
+				Not_Declar_Message(node);
+				exit(1);
 			}
-			Children = Children->next;
 		}
 		return;
-	} else if ((node->Stroka == "if") || (node->Stroka == "while")|| (node->Stroka == "def")){
+	}else if (node->Stroka == "if" ||
+			node->Stroka == "def" ||
+			node->Stroka == "while" )
+	{
 		int lvl = currTable->level + 1;
-		node->table = idTable_init(lvl);
+		node->table = Id_Table_Init(lvl);
 
 		node->table->next = currTable;
+		currTable = node->table;
 
-		currTable = node->table;    
-	/*}else if (node->Stroka == "def") {
-		string name = node->Token->type;
+	}else if(node->Stroka == "Function")
+	{
+		struct listnode *Found_Node = hashtab_lookup(currTable->hashtab, node->Token->name);
 
-		struct listnode *foundNode = hashtab_lookup(table->hashtab, name);
-
-		if (foundNode == NULL) {
+		if (Found_Node == NULL)
+		{
+			string name = node->Token->name;			
 			int value = hashtab_hash(name);
+			hashtab_add(currTable->hashtab, name, value, 3, 0); 
 
-			hashtab_add(currTable->hashtab, name, value, 3, 0);
-
-			int lvl = currTable->level + 1;
-			node->table = idTable_init(lvl);
-
-			node->table->next = currTable;
-
-			currTable = node->table;
-		} else {
-			redeclMessage(node);
-		}*/
-	} else if ((node->Stroka == "id")){
-		string name = node->Token->type;
-		struct listnode *foundNode = findInAllTable(currTable, name);
-
-		if (foundNode == NULL) {
-			notdeclMessage(node);
+			
 		}
 	}
-
 	struct ListChild* Children = node->ListChildren;
-	while (Children != NULL) {
-		travel_tree(currTable, Children->Node);
+	while (Children != NULL)
+	{
+		Tree_traversal(currTable,Children->Node);
 		Children = Children->next;
 	}
 }
-
-void redeclMessage(struct AST *node)
+void Redecl_Message(struct AST *node)
 {
-	cout << node->Token->y << ":" <<  node->Token->x <<"error: redeclorte " << node->Token->type << endl;
+	cout  << node->Token->y<< " : " << node->Token->x << " error: redeclorte " << node->Token->name << endl;
+}
+void Not_Declar_Message(struct AST *node)
+{
+	cout  << node->Token->y << " : " <<  node->Token->x << " error: notdeclorate " << node->Token->type << endl;
 }
 
-void notdeclMessage(struct AST *node)
+void print_table(struct AST *node)
 {
-	cout << node->Token->y << ":" <<  node->Token->x <<"error: notdeclorate " << node->Token->type << endl;
-}
-
-void print_table(struct AST *node) {
-	if (node->table != NULL) {
-		printf("level = %d\n", node->table->level);
-		for (int i=0; i < HASHTAB_SIZE; i++) {
-			struct listnode *hashnode = node->table->hashtab[i];
-			if (hashnode != NULL) {
-				cout << "id= " <<  hashnode->key <<  "	" << "baseType= " << hashnode->baseType << "	" << "type= " << hashnode->type << "	" << "offset= " << 					hashnode->offset << endl;
+	if (node->table != NULL)
+	{
+		cout << "level =  " <<  node->table->level << endl;
+		for (int i = 0; i < HASHTAB_SIZE; i++)
+		{
+			struct listnode *hash_node = node->table->hashtab[i] ;
+			if (hash_node != NULL)
+			{
+				cout << "id= " << hash_node->key << "		" << "baseType= " << hash_node->base_type << "	" << "type= " << hash_node->type << "	"<< "offset= " << 						hash_node->offset << endl;
 			}
 		}
+		printf("SIZE TABLE: %d\n", node->table->sizeTable);
+		
 	}
 	struct ListChild* Children = node->ListChildren;
-	while (Children != NULL) {
+	while (Children != NULL)
+	{
 		print_table(Children->Node);
 		Children = Children->next;
 	}
+	//printf("!!!!! \n");
 }
+

@@ -16,7 +16,7 @@ int main(int argc, char **argv){
     AST* root = p.pars(token);
 	createTree(root);
 
-	init_semantic(root);
+	Init_semantic(root);
 	print_table(root);
 	return 0;
 }

@@ -7,11 +7,12 @@
 #include "AST.h"
 #include "hashtable.h"
 
-void init_semantic(struct AST *root);
-void travel_tree(struct idTable *table, struct AST *node);
-void print_table(struct AST *node);
-void checkArgList();
 
-void redeclMessage(struct AST *node);
-void notdeclMessage(struct AST *node);
+void Init_semantic(struct AST *root);
+void Tree_traversal(struct Id_Table *table, struct AST *node);
+void print_table(struct AST *node);
+void Redecl_Message(struct AST *node);
+void Not_Declar_Message(struct AST *node);
+void CheckArdList();
+
 #endif

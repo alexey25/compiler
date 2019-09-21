@@ -331,6 +331,7 @@ void parser::Id_or_Num(struct AST* ComparNode)
         setStroka(IdNode, "var");
         setToken(IdNode,  getLookahead());
        	add_child(IdNode, ComparNode);
+		//IdNode->type = 1;
 
 
         match("id");
@@ -410,6 +411,8 @@ void parser::Tat(struct AST* StetementNode)
 
     struct AST* IdNode = initASTNode();
     add_child(IdNode, StetementNode);
+	IdNode->type = 1;
+	setToken(IdNode,  getLookahead());
     match("id");
     Arith_or_func(StetementNode);
 }
@@ -429,11 +432,12 @@ void parser::Arith_or_func(struct AST* StetementNode){
         Func_call(FuncCallNode);
     }else if (lookahead->type ==  "l_braket"){
 		struct AST* getLastNode = getLastChilde(StetementNode);;    
-	    setStroka(getLastNode, "Arithmetic");
+	    setStroka(getLastNode, "Array");
+		getLastNode->type = 3;
 	    array(getLastNode);
     }else if (lookahead->type ==  "equally"){
-		struct AST* getLastNode = getLastChilde(StetementNode);;    
-	    setStroka(getLastNode, "var");
+		struct AST* getLastNode = getLastChilde(StetementNode);
+		setStroka(getLastNode, "var");    
 	   // Set_Token(getLastNode, Get_knots);
 	    struct AST* ArithmeticNode = initASTNode();
 	    setStroka(ArithmeticNode, "Arithmetic");
@@ -448,8 +452,7 @@ void parser::array(struct AST* Node){
 	match("l_braket");
 	if (lookahead->type ==  "id"){
 	    struct AST* IdNode = initASTNode();
-	    setStroka(IdNode, "Array");
-	    setToken(Node,  getLookahead());
+		setStroka(IdNode, "arr_index");
 	    add_child(IdNode, Node);
 		match("id");
 		match("r_braket");  
@@ -457,9 +460,8 @@ void parser::array(struct AST* Node){
 			Arithmetic(Node);
 		}  
 	}else if (lookahead->type ==  "numeric"){
-		struct AST* IdNode = initASTNode();	    
-		setStroka(IdNode, "Array");
-	    setToken(Node,  getLookahead());
+		struct AST* IdNode = initASTNode();	
+		setStroka(IdNode, "arr_index");    
 	    add_child(IdNode, Node);
 		match("numeric");
 		match("r_braket");  
@@ -524,6 +526,7 @@ void parser::Arithmetic(struct AST* ArithmeticNode)
 {
     struct AST* ComparNode = initASTNode();
     setStroka(ComparNode, getLookaheadname());
+	setToken(ComparNode, getLookahead());
     swapChild(ArithmeticNode, ComparNode);
 
     match("equally");
